@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú con botones flotantes</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        /* Imagen de fondo */
+        
+        .menu-fondo {
+            background: url("./menu.jpeg") no-repeat center center;
+            background-size: 100% 100%;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Botones flotantes */
+        
+        .boton {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            right: 20px;
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+        
+        .boton:hover {
+            transform: scale(1.1);
+        }
+        /* WhatsApp */
+        
+        .whatsapp {
+            background: #25D366;
+            bottom: 100px;
+        }
+        /* Música */
+        
+        .musica {
+            background: #ff4757;
+            bottom: 20px;
+        }
+        /* Toast */
+        
+        .toast {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 2000;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        /* Ajuste para celulares */
+        
+        @media (max-width: 768px) {
+            .boton {
+                width: 80px;
+                height: 80px;
+                font-size: 36px;
+                right: 15px;
+            }
+            .toast {
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+        }
+        
+        .texto-centro {
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 38px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            opacity: 0;
+            animation: fade 3s infinite;
+        }
+        
+        @keyframes fade {
+            0% {
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="menu-fondo"></div>
+    <div id="texto" class="texto-centro">Bienvenido 🎉</div>
+    <!-- Botón WhatsApp -->
+    <button class="boton whatsapp" onclick="abrirWhatsApp()">
+    <i class="fab fa-whatsapp"></i>
+  </button>
+
+    <!-- Botón Música -->
+    <button class="boton musica" onclick="toggleMusica()">
+    <i id="icono-musica" class="fas fa-pause"></i>
+  </button>
+
+    <!-- Música autoplay (muted obligatorio por navegadores) -->
+    <audio id="audio" muted loop>
+    <source src="./SPOT PARA VOCEO DE TAMALES  GRATIS - Pedro Horcacitas.mp3" type="audio/mpeg">
+  </audio>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">Música activada 🎶</div>
+
+    <script>
+        function abrirWhatsApp() {
+            const numero = "529991253726";
+            const mensaje = "Hola, me interesa hacer un pedido..";
+            const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, "_blank");
+        }
+
+        function toggleMusica() {
+            const audio = document.getElementById("audio");
+            const icono = document.getElementById("icono-musica");
+            const toast = document.getElementById("toast");
+
+            // Si está muteado, lo activamos
+            if (audio.muted) {
+                audio.muted = false;
+                mostrarToast("Música activada 🎶");
+            }
+
+            if (audio.paused) {
+                audio.play();
+                icono.classList.remove("fa-play");
+                icono.classList.add("fa-pause");
+                mostrarToast("Música activada 🎶");
+            } else {
+                audio.pause();
+                icono.classList.remove("fa-pause");
+                icono.classList.add("fa-play");
+                mostrarToast("Música pausada ⏸️");
+            }
+        }
+
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById("toast");
+            toast.textContent = mensaje;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 2000);
+        }
+        const mensajes = ["Para mañana viernes tenemos Ricos Vaporcitos 🎉", "Haz tu pedido, estamos desde las 7:00 AM 📲", "Gracias por tu preferencia 🙌"];
+        let indice = 0;
+        const texto = document.getElementById("texto");
+
+        setInterval(() => {
+            indice = (indice + 1) % mensajes.length;
+            texto.textContent = mensajes[indice];
+        }, 3000); // cambia cada 3s (igual que la animación)
+
+        const audio = document.getElementById("audio");
+
+        // Funciona en el primer click en cualquier parte
+        function activarMusica() {
+            audio.muted = false; // quitar mute
+            audio.play().catch(() => {}); // por si hay error
+            window.removeEventListener("click", activarMusica);
+        }
+
+        window.addEventListener("click", activarMusica, {
+            once: true
+        });
+    </script>
+</body>
+
+</html>
